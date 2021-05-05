@@ -76,4 +76,4 @@ async function newsRSS() {
 	});
 }
 newsRSS();
-//finvizScrape();
+finvizScrape();
