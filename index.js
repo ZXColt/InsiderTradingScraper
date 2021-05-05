@@ -1,9 +1,15 @@
 const request = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs');
-const file = 'data.json';
+const insiderTradingJson = 'insiderTrading.json';
+const newsRssFeed = 'newsFeed.json';
 
-async function main() {
+//rss parser
+let Parser = require('rss-parser');
+let parser = new Parser();
+
+// scrapes finviz insider trading for the top insider trading of the previous 7 days
+async function finvizScrape() {
 	const result = await request.get(
 		'https://finviz.com/insidertrading.ashx?or=-10&tv=100000&tc=7&o=-transactionValue'
 	);
@@ -46,11 +52,28 @@ async function main() {
 	});
 	//write to file
 	var js = JSON.stringify(builtJson);
-	fs.writeFile(file, js, (err) => {
+	fs.writeFile(insiderTradingJson, js, (err) => {
 		if (err) {
 			throw err;
 		}
 	});
 }
 
-main();
+async function newsRSS() {
+	let builtJson = [];
+	let feed = await parser.parseURL(
+		'https://www.investing.com/rss/news_285.rss'
+	);
+
+	feed.items.forEach((item) => {
+		builtJson.push(item);
+	});
+	var js = JSON.stringify(builtJson);
+	fs.writeFile(newsRssFeed, js, (err) => {
+		if (err) {
+			throw err;
+		}
+	});
+}
+newsRSS();
+//finvizScrape();
